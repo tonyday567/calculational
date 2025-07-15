@@ -1,0 +1,23 @@
+cabal-version:      3.0
+name:               calculational
+version:            0.1.0.0
+license:            BSD-3-Clause
+license-file:       LICENSE
+author:             Tony Day
+maintainer:         tonyday567@gmail.com
+copyright:
+build-type:         Simple
+extra-doc-files:    CHANGELOG.md
+
+common warnings
+    ghc-options: -Wall
+
+library
+    import:           warnings
+    exposed-modules:
+      Prod
+    build-depends:
+      , base ^>=4.21.0.0
+      , numhask
+    hs-source-dirs:   src
+    default-language: GHC2024
