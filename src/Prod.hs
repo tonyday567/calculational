@@ -1,13 +1,13 @@
 {-# LANGUAGE RebindableSyntax #-}
 {-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
+
 {-# HLINT ignore "Eta reduce" #-}
 {-# HLINT ignore "Use foldr" #-}
 {-# HLINT ignore "Use foldl" #-}
 
 -- from https://x.com/defnotbeka/status/1898441268159750204
 
-module Prod
-  (fac, fac', fac'', faco, faco', facx) where
+module Prod (fac, fac', fac'', faco, faco', facx) where
 
 import Data.Bool
 import NumHask.Prelude
@@ -18,10 +18,10 @@ fac x = prod (range one x)
 -- use foldr
 prod :: (Multiplicative t) => [t] -> t
 prod [] = one
-prod (x:xs) = x * prod xs
+prod (x : xs) = x * prod xs
 
 range :: (Multiplicative a, Additive a, Eq a) => a -> a -> [a]
-range x y = bool (x:range (x+one) y) [x] (x==y)
+range x y = bool (x : range (x + one) y) [x] (x == y)
 
 -- problem: prod is not tail-recursive
 -- solve: fuse
@@ -42,9 +42,9 @@ range x y = bool (x:range (x+one) y) [x] (x==y)
 
 -- use foldl
 -- tail-recursive: the final calculation inc=volves only values; x,y & ys
-prod_ :: Multiplicative t => t -> [t] -> t
+prod_ :: (Multiplicative t) => t -> [t] -> t
 prod_ x [] = x
-prod_ x (y:ys) = prod_ (x*y) ys
+prod_ x (y : ys) = prod_ (x * y) ys
 
 prod' :: (Multiplicative t, FromInteger t) => [t] -> t
 prod' xs = prod_ 1 xs
@@ -66,7 +66,6 @@ fac' x = prod' (range 1 x)
 -- bool (bool (prod_ one (2:range 3 x)) (prod_ one [2]) (2==x)) one (one==x) {distributive bool}
 -- bool (bool (prod_ one (2:range 3 x)) 2 (2==x)) one (one==x)
 
-
 -- if 1==x then 1 else 1 * starProd 1 (numsFromTo 2 x)
 -- if 1==x then 1 else starProd 1 (numsFromTo 2 x) ~{unit *}
 -- if 1==x then 1 else starProd 1 (if x==2 [2] (2:numsFromTo 3 x)) ~{def numsFromTo}
@@ -76,7 +75,6 @@ fac' x = prod' (range 1 x)
 -- if (1==x) then 1 else if (2==x) 2 else prodStar 2 (range 3 x) [2] (2==x)
 -- bool (bool (prod_ one (2:range 3 x)) (prod_ one [2]) (2==x)) one (one==x) {distributive bool}
 -- bool (bool (prod_ one (2:range 3 x)) 2 (2==x)) one (one==x)
-
 
 -- fac' x
 -- prod' (range one x) ~{spec}
@@ -93,7 +91,7 @@ fac' x = prod' (range 1 x)
 -- (x*y) * bool (fac_ one (y+one) z) (y==z)
 
 fac_ :: (Multiplicative t, Additive t, Ord t) => t -> t -> t -> t
-fac_ x y z = x * y * bool one (fac_ one (y+one) z) (y>z)
+fac_ x y z = x * y * bool one (fac_ one (y + one) z) (y > z)
 
 fac'' :: (Multiplicative t, Additive t, Ord t) => t -> t
 fac'' x = fac_ one one x
@@ -103,7 +101,7 @@ fac'' x = fac_ one one x
 -- 3. picking case analysis based on which variables are the root cause of stuckness
 
 faco :: (Multiplicative a, Eq a, Subtractive a) => a -> a
-faco n = bool (n*faco(n - one)) one (n==zero)
+faco n = bool (n * faco (n - one)) one (n == zero)
 
 -- fuse *faco
 -- faco_ x y ~ x * faco y
@@ -117,11 +115,10 @@ faco n = bool (n*faco(n - one)) one (n==zero)
 -- bool (faco_ (x*y) (y-one)) x (y==zero) ~{def faco_}
 
 faco_ :: (Multiplicative a, Subtractive a, Eq a) => a -> a -> a
-faco_ x y = bool (faco_ (x*y) (y-one)) x (y==zero)
+faco_ x y = bool (faco_ (x * y) (y - one)) x (y == zero)
 
 faco' :: (Multiplicative a, Subtractive a, Eq a) => a -> a
 faco' x = faco_ one x
-
 
 -- https://x.com/defnotbeka/status/1898847444500357537
 -- https://x.com/locallycompact/status/1943767542536769969
@@ -180,7 +177,6 @@ facx n = if n == 1 then 1 else n * facx (n - 1)
 -- f C0 = 1
 -- f (C1 n r) = n * f r
 --
-
 
 -- let's say the if came from F ...
 
